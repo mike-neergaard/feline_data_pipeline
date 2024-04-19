@@ -18,7 +18,7 @@ for f in ./"New Recording"*; do
 		sed 's/$/.wav/' 
 	)
 	# Sox can't handle m4a, so change format to wav
-	ffmpeg -y -i "$f" "raw/$new_file"
+	ffmpeg -y -v 0 -i "$f" "raw/$new_file"
 	# We're done with the original file
 	mv --backup=numbered "$f" processed
 	# Split audio file into chunks

@@ -34,17 +34,22 @@ class sheetToTSV:
     def login(self, creds_fname, oauth_fname): 
         """ Method to get some credentials """ 
         if self.credentials and self.credentials.expired and self.credentials.refresh_token: 
-            # We just need to refresh the credentials. 
-            self.credentials.refresh(Request()) 
-        else:
-            # Looks like we need to login
-            self.credentials = \
-                    InstalledAppFlow.from_client_secrets_file(\
-                        oauth_fname, self.privileges\
-                    ).run_local_server(port=0) 
-            # Save the credentials for the next run 
-            with open(creds_fname, "w") as outfile: 
-                outfile.write(self.credentials.to_json())
+            # We need to refresh the credentials. 
+            try: 
+                # It might not work, but here goes
+                self.credentials.refresh(Request()) 
+                return
+            except google.auth.exceptions.RefreshError:
+                # It didn't work
+                pass
+        # Looks like we need to login
+        self.credentials = \
+                InstalledAppFlow.from_client_secrets_file(\
+                    oauth_fname, self.privileges\
+                ).run_local_server(port=0) 
+        # Save the credentials for the next run 
+        with open(creds_fname, "w") as outfile: 
+            outfile.write(self.credentials.to_json())
 
     def download(self, file_id, filename):
         try:
@@ -66,7 +71,7 @@ class sheetToTSV:
 def main(): 
     downloader = sheetToTSV()
     file_id = "19LiA7BbHFqV0ZwywEgOzbBZqbdLT63uuwybP1MvtnTA" 
-    filename = 'cat_data.tsv'
+    filename = 'feline_data.tsv'
     downloader.download(file_id, filename)
 
 if __name__ == "__main__":
