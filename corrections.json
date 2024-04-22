@@ -1,0 +1,31 @@
+{
+  "entered time": [
+    {
+      "year": 2024,
+      "month": 3,
+      "day": 25,
+      "hour": 15, 
+      "minute": 2,
+      "second": 0,
+      "to hour": 17
+    },
+    {
+      "year": 2025,
+      "month": 3,
+      "day": 27,
+      "hour": 20,
+      "minute": 25,
+      "second": 0,
+      "to year": 2024
+    },
+    {
+      "year": 2024,
+      "month": 4,
+      "day": 12,
+      "hour": 16, 
+      "minute": 22,
+      "second": 0,
+      "to hour": 15
+    }
+  ]
+}
