@@ -38,6 +38,7 @@ class reconcileDates:
                 level=logger_level)
 
     def utc_iso(self, dt: datetime)-> str:
+        """ Convert datetime to string in UTC time """
         return dt.astimezone(timezone.utc).isoformat()
 
     def reconcile(self): 
@@ -56,29 +57,39 @@ class reconcileDates:
                     str(length_e))
             return
 
-        for i in range(len(self.auto_datetimes)):
-            a = self.auto_datetimes[i]
-            e = self.entered_datetimes[i]
-            diff = (a-e).total_seconds()
-            if i < len(self.auto_datetimes)-1 and \
-                    (self.entered_datetimes[i+1]-self.entered_datetimes[i]).\
-                    total_seconds() <= 0: 
-                # Technically entered times don't have to be sequential, but
-                # we want to flag it for further examination if it happens.  
-                # A year could be entered incorrectly, for example.  
-                self.logger.warning(self.entered_datetimes[i].isoformat()+\
-                        " at position "+str(i)+" comes after "+\
-                        self.entered_datetimes[i+1].isoformat()+\
-                        " at position "+str(i+1))
-            if diff < 0:
-                # We should flag this
-                self.logger.warning("Entered time "+str(e)+\
-                        " occurred after logged time "+str(a))
-            if abs(diff) > 10*60: 
-                self.logger.warning("Significant difference between logged "+\
+        # Technically entered times don't have to be sequential, but
+        # we want to flag it for further examination if it happens.  
+        # A year could be entered incorrectly, for example.  
+        [   
+            self.logger.warning(self.entered_datetimes[i].isoformat()+ \
+                # Line numbers start at 1 and there is a header line
+                " on line "+ str(i+2) + " comes after " + \
+                self.entered_datetimes[i+1].isoformat() \
+                + " on line "+ str(i+3))
+            for i in range(len(self.entered_datetimes)-1) \
+            if (self.entered_datetimes[i+1]-self.entered_datetimes[i]).\
+                total_seconds() <= 0 \
+        ]
+        [
+            [
+                # In theory, one makes a log entry after the event occurs
+                self.logger.warning("On line "+str(i+2)+", entered time "+\
+                        str(e)+ " occurred after logged time "+str(a))
+                    if diff < 0 else None,
+                # In theory, one makes a log entry right away
+                self.logger.warning("On line " + str(i+2) + \
+                        ", significant difference between logged "+\
                         "time and entered time encountered.\tLogged time "+\
                         str(a)+" and\tentered time "+str(e)+\
                         "\tare "+str(diff)+" seconds apart")
+                    if abs(diff) > 10*60 else None
+            ]
+
+            for i in range(len(self.auto_datetimes)) \
+            if  (a := self.auto_datetimes[i]) and
+                (e := self.entered_datetimes[i]) and
+                (diff := (a-e).total_seconds())
+        ]
 
     def read_audio_datetimes(self):
         complete_dir = os.path.join(".", self.complete_audio_dir)
